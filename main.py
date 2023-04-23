@@ -10,15 +10,23 @@ MAX_COUNTER: int = 100
 
 offset: int = -2
 counter: int = 0
+timeout: int = 20.63
 chat_id: int
+updates: dict
 
 
-while counter < MAX_COUNTER:
-    print('attempt =', counter)
-    updates = requests.get(f'{API_URL}{BOT_TOKEN}/getUpdates?offset={offset + 1}').json()
+def do_something() -> None:
+    print('Был апдейт')
+
+
+while True:
+    start_time = time.time()
+    updates = requests.get(f'{API_URL}{BOT_TOKEN}/getUpdates?offset={offset + 1}&timeout={timeout}').json()
     if updates['result']:
         for result in updates['result']:
+            print(result['message']['text'])
             offset = result['update_id']
+            do_something()
             try:
                 chat_id = result['message']['from']['id']
             except KeyError:
@@ -31,5 +39,6 @@ while counter < MAX_COUNTER:
             else:
                 requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text=Нет нужной картинки')
 
-    time.sleep(1)
-    counter += 1
+    # time.sleep(3)
+    end_time = time.time()
+    print(f"Время между запросами к Телеграм АПИ {end_time - start_time}")
