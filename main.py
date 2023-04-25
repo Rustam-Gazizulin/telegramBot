@@ -1,44 +1,27 @@
-import requests
-import time
+from aiogram import Bot, Dispatcher
+from aiogram.filters import Command
+from aiogram.types import Message
 
 
-API_URL: str = 'https://api.telegram.org/bot'
-API_CATS_URL: str = 'https://api.thecatapi.com/v1/images/search'
-BOT_TOKEN: str = '5976510239:AAE_GAdpynTlNEHbJNtdIroDDjRzXwl_8xY'
-TEXT: str = 'Good Job!!!'
-MAX_COUNTER: int = 100
+API_TOKEN: str = '5976510239:AAE_GAdpynTlNEHbJNtdIroDDjRzXwl_8xY'
 
-offset: int = -2
-counter: int = 0
-timeout: int = 20.63
-chat_id: int
-updates: dict
+bot: Bot = Bot(token=API_TOKEN)
+dp: Dispatcher = Dispatcher()
 
 
-def do_something() -> None:
-    print('Был апдейт')
+@dp.message(Command(commands=['start']))
+async def process_start_command(message: Message):
+    await message.answer('Привет!\nМеня зовут эхо-бот!\nНапиши мне что-нибудь)')
 
 
-while True:
-    start_time = time.time()
-    updates = requests.get(f'{API_URL}{BOT_TOKEN}/getUpdates?offset={offset + 1}&timeout={timeout}').json()
-    if updates['result']:
-        for result in updates['result']:
-            print(result['message']['text'])
-            offset = result['update_id']
-            do_something()
-            try:
-                chat_id = result['message']['from']['id']
-            except KeyError:
-                chat_id = result['edited_message']['chat']['id']
-            cat_response = requests.get(API_CATS_URL)
-            if cat_response.status_code == 200:
-                cat_link = cat_response.json()[0]['url']
-                requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text=Лови КОТИКА!')
-                requests.get(f'{API_URL}{BOT_TOKEN}/sendPhoto?chat_id={chat_id}&photo={cat_link}')
-            else:
-                requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text=Нет нужной картинки')
+@dp.message(Command(commands=['help']))
+async def process_help_command(message: Message):
+    await message.answer('Напиши что-нибудь и в ответ пришлю тебе твое сообщение')
 
-    # time.sleep(3)
-    end_time = time.time()
-    print(f"Время между запросами к Телеграм АПИ {end_time - start_time}")
+
+@dp.message()
+async def send_echo(message: Message):
+    await message.reply(text=message.text)
+
+if __name__ == '__main__':
+    dp.run_polling(bot)
