@@ -1,5 +1,3 @@
-import random
-
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -11,7 +9,7 @@ API_TOKEN: str = '5976510239:AAE_GAdpynTlNEHbJNtdIroDDjRzXwl_8xY'
 bot: Bot = Bot(token=API_TOKEN)
 dp: Dispatcher = Dispatcher()
 
-# Количество попыток
+
 # Хендлер для команды /start
 async def process_start_command(message: Message):
     await message.answer('Привет!\nМеня зовут эхо-бот!\nНапиши мне что-нибудь)')
